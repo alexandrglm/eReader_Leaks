@@ -6,14 +6,18 @@ def improve_library_html(input_html, output_html):
 
     title_tag = soup.find('title')
     if title_tag:
-        title_tag.string = "Enhanced Library with Carousel"
+        title_tag.string = "Library set:"
 
     style_tag = soup.new_tag('style')
     style_tag.string = """
     body {
-        font-family: 'Arial', sans-serif;
+        font-family: 'Century Schoolbook', serif;
         margin: 20px;
         background-color: #f4f4f4;
+    }
+    @font-face {
+        font-family: 'Century Schoolbook';
+        src: url('./files/CS.ttf') format('truetype');
     }
     table {
         width: 100%;
@@ -31,6 +35,10 @@ def improve_library_html(input_html, output_html):
     th {
         background-color: #333;
         color: white;
+        cursor: pointer;
+    }
+    th.sortable:hover {
+        background-color: #555;
     }
     tr:nth-child(even) {
         background-color: #f9f9f9;
@@ -103,16 +111,53 @@ def improve_library_html(input_html, output_html):
     var images = document.querySelectorAll('.carousel-images img');
     images[currentIndex].classList.add('active');
 
-    document.getElementById('next').addEventListener('click', function() {
+    function showNextImage() {
         images[currentIndex].classList.remove('active');
         currentIndex = (currentIndex + 1) % images.length;
         images[currentIndex].classList.add('active');
-    });
+    }
 
-    document.getElementById('prev').addEventListener('click', function() {
+    function showPrevImage() {
         images[currentIndex].classList.remove('active');
         currentIndex = (currentIndex - 1 + images.length) % images.length;
         images[currentIndex].classList.add('active');
+    }
+
+    document.getElementById('next').addEventListener('click', showNextImage);
+    document.getElementById('prev').addEventListener('click', showPrevImage);
+
+    setInterval(showNextImage, 1000); // Change image every 1 second
+
+    document.querySelectorAll('th.sortable').forEach(function(header) {
+        header.addEventListener('click', function() {
+            var table = header.closest('table');
+            var tbody = table.querySelector('tbody');
+            var rows = Array.from(tbody.querySelectorAll('tr'));
+            var index = Array.from(header.parentNode.children).indexOf(header);
+            var isAscending = header.classList.contains('asc');
+
+            rows.sort(function(a, b) {
+                var aText = a.children[index].innerText;
+                var bText = b.children[index].innerText;
+                if (isNaN(aText) || isNaN(bText)) {
+                    return aText.localeCompare(bText);
+                } else {
+                    return aText - bText;
+                }
+            });
+
+            if (isAscending) {
+                rows.reverse();
+                header.classList.remove('asc');
+            } else {
+                header.classList.add('asc');
+            }
+
+            tbody.innerHTML = '';
+            rows.forEach(function(row) {
+                tbody.appendChild(row);
+            });
+        });
     });
     """
     soup.body.append(script_tag)

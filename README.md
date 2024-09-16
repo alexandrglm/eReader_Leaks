@@ -4,29 +4,32 @@
 ## REQUIREMENTS
 
  - Python 3.x
+```
+$ pip install pdfkit bs4
+```
 
 ## USAGE
 
-- Generate HTML libraries:
+### Generate HTML libraries:
 ```
 $ python librero.py
 $ python set.py
 ```
-- Create an Exlibris PDF list:
+### Create an Exlibris PDF list:
 ```
 $ python pdf.py
 ```
 
-- Edit the JSON:
+### Edit the JSON:
 ```
 $ python JSON_editor.py
 ```
-- Edit the JSON via HTML interface:
+### Edit the JSON via HTML interface:
 ```
 $ open ./editor.html
 ```
 
-(Development in progress)
+_(Development in progress)_
 
 
 2024 September, 16th.

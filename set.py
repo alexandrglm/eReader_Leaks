@@ -96,9 +96,9 @@ def improve_library_html(input_html, output_html):
     carousel_div.append(carousel_images_div)
 
     prev_button = soup.new_tag('button', id='prev')
-    prev_button.string = "Anterior"
+    prev_button.string = "Prev."
     next_button = soup.new_tag('button', id='next')
-    next_button.string = "Siguiente"
+    next_button.string = "Next"
 
     carousel_div.append(prev_button)
     carousel_div.append(next_button)

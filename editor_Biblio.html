@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Editor</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .editable {
+            background-color: #f9f9f9;
+            cursor: pointer;
+        }
+        .editable:hover {
+            background-color: #e2e2e2;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Book Editor</h1>
+    <input type="file" id="fileInput" />
+    <button onclick="saveJSON()">Save JSON</button>
+    <table id="booksTable">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publisher</th>
+                <th>Description</th>
+                <th>Language</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <script>
+        let library = [];
+
+        document.getElementById('fileInput').addEventListener('change', loadJSON);
+
+        function loadJSON(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    library = JSON.parse(e.target.result);
+                    displayBooks();
+                } catch (error) {
+                    alert('Error parsing JSON: ' + error);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function displayBooks() {
+            const tbody = document.querySelector('#booksTable tbody');
+            tbody.innerHTML = '';
+
+            library.forEach((book, index) => {
+                const row = document.createElement('tr');
+                Object.keys(book).forEach(key => {
+                    const cell = document.createElement('td');
+                    cell.classList.add('editable');
+                    cell.setAttribute('contenteditable', true);
+                    cell.setAttribute('data-index', index);
+                    cell.setAttribute('data-key', key);
+                    cell.textContent = book[key] || '';
+                    cell.addEventListener('input', updateCell);
+                    row.appendChild(cell);
+                });
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateCell(event) {
+            const cell = event.target;
+            const index = cell.getAttribute('data-index');
+            const key = cell.getAttribute('data-key');
+            const value = cell.textContent;
+
+            library[index][key] = value;
+        }
+
+        function saveJSON() {
+            const blob = new Blob([JSON.stringify(library, null, 4)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'library.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

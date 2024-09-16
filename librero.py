@@ -20,16 +20,24 @@ def generate_html(library, output_file):
     with open(output_file, 'w') as f:
         f.write('<!DOCTYPE html>\n<html>\n<head>\n<title>Library</title>\n')
         f.write('<link rel="stylesheet" type="text/css" href="styles.css">\n')
+        f.write('<link rel="icon" href="./files/exlibris.svg" type="image/svg+xml">\n')
         f.write('<style>\n')
-        f.write('body { font-family: "Georgia", serif; margin: 20px; }\n')
+        f.write('body { font-family: "Georgia", serif; margin: 20px; background: url("./files/exlibris.png") no-repeat center center fixed; background-size: cover; }\n')
         f.write('table { width: 100%; border-collapse: collapse; margin-top: 20px; }\n')
         f.write('th, td { padding: 10px; text-align: left; border: 1px solid #ddd; }\n')
         f.write('th { background-color: #f2f2f2; }\n')
         f.write('tr:nth-child(even) { background-color: #f9f9f9; }\n')
-        f.write('img { width: 100px; height: auto; }\n')
+        f.write('img.cover-img { width: 100px; height: auto; }\n')
+        f.write('img.logo { width: 150px; height: auto; margin: 20px; }\n')
         f.write('</style>\n')
         f.write('</head>\n<body>\n')
         f.write('<h1>Books that were some day on my eReader</h1>\n')
+
+        f.write('<div>\n')
+        f.write('<h2>Logo and Background Images</h2>\n')
+        f.write('<img src="./files/exlibris.svg" class="logo" alt="Logo">\n')
+        f.write('<img src="./files/exlibris.png" class="logo" alt="Background Image">\n')
+        f.write('</div>\n')
 
         f.write('<table>\n')
         f.write('<tr>\n')
@@ -44,7 +52,7 @@ def generate_html(library, output_file):
         for book in library:
             f.write('<tr>\n')
             cover_img = book['cover']
-            f.write(f'<td><img src="{cover_img}" alt="Cover"></td>\n')
+            f.write(f'<td><img src="{cover_img}" class="cover-img" alt="Cover"></td>\n')
             f.write(f'<td>{book["title"]}</td>\n')
             f.write(f'<td>{book["author"]}</td>\n')
             f.write(f'<td>{book["publisher"]}</td>\n')
@@ -60,7 +68,6 @@ def save_library_to_json(library, json_file):
         json.dump(library, f, indent=4)
 
 def parse_metadata_opf(metadata_opf_path):
-
     return {
         'title': 'Unknown Title',
         'author': 'Unknown Author',

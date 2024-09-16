@@ -52,19 +52,29 @@ def improve_library_html(input_html, output_html):
         width: 300px;
         margin: 20px auto;
         position: relative;
+        padding: 20px;
+        background: url('./files/ereader.png') no-repeat center center;
+        background-size: cover;
+        border-radius: 15px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
     }
     .carousel-images {
         width: 100%;
         height: 400px;
         overflow: hidden;
+        border-radius: 10px;
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.15);
     }
     .carousel-images img {
         width: 100%;
         height: auto;
         display: none;
+        transition: opacity 0.5s ease-in-out;
+        opacity: 0;
     }
     .carousel-images img.active {
         display: block;
+        opacity: 1;
     }
     #prev, #next {
         position: absolute;
@@ -79,6 +89,31 @@ def improve_library_html(input_html, output_html):
     }
     #prev { left: 0; }
     #next { right: 0; }
+    .back-link {
+        display: block;
+        margin: 20px auto;
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .back-link a {
+        text-decoration: none;
+        color: #333;
+        padding: 10px 20px;
+        border: 2px solid #333;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .back-link a:hover {
+        background-color: #333;
+        color: white;
+    }
+    .carousel-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
     """
 
     if not soup.style:
@@ -103,7 +138,18 @@ def improve_library_html(input_html, output_html):
     carousel_div.append(prev_button)
     carousel_div.append(next_button)
 
+    carousel_title = soup.new_tag('div', **{'class': 'carousel-title'})
+    carousel_title.string = "exlibris-alexandr"
+
+    soup.body.insert(0, carousel_title)
     soup.body.insert(0, carousel_div)
+
+    back_link_div = soup.new_tag('div', **{'class': 'back-link'})
+    back_link = soup.new_tag('a', href='./exlibris.html')
+    back_link.string = "Exlibris Editor"
+    back_link_div.append(back_link)
+
+    soup.body.append(back_link_div)
 
     script_tag = soup.new_tag('script')
     script_tag.string = """
@@ -126,7 +172,7 @@ def improve_library_html(input_html, output_html):
     document.getElementById('next').addEventListener('click', showNextImage);
     document.getElementById('prev').addEventListener('click', showPrevImage);
 
-    setInterval(showNextImage, 1000); // Change image every 1 second
+    setInterval(showNextImage, 750);
 
     document.querySelectorAll('th.sortable').forEach(function(header) {
         header.addEventListener('click', function() {

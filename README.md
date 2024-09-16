@@ -12,12 +12,12 @@
 - Generate HTML libraries:
 ```
 $ python librero.py
-$ python improve2.py
+$ python set.py
 
 ```
 - Edit the JSON:
 ```
-$ python editor.py
+$ python JSON_editor.py
 
 ```
 - Edit the JSON via HTML interface:

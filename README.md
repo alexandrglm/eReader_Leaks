@@ -11,18 +11,21 @@
 ```
 $ python librero.py
 $ python set.py
-
 ```
+- Create an Exlibris PDF list:
+```
+$ python pdf.py
+```
+
 - Edit the JSON:
 ```
 $ python JSON_editor.py
-
 ```
 - Edit the JSON via HTML interface:
 ```
 $ open ./editor.html
-
 ```
+
 (Development in progress)
 
 

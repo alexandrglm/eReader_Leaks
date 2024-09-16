@@ -1,7 +1,5 @@
-# eReader Leaks
+# eReader exlibris v0.1
 ## Exlibris generator using Calibre database, of some books that were in my eReader.
-
-
 
 ## REQUIREMENTS
 

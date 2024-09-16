@@ -1,112 +1,130 @@
-import json
-import os
-import shutil
+from bs4 import BeautifulSoup
 
-def load_library_from_json(json_file):
-    if os.path.exists(json_file):
-        with open(json_file, 'r') as f:
-            return json.load(f)
-    return []
+def improve_library_html(input_html, output_html):
+    with open(input_html, 'r') as file:
+        soup = BeautifulSoup(file, 'html.parser')
 
-def save_library_to_json(library, json_file):
-    with open(json_file, 'w') as f:
-        json.dump(library, f, indent=4)
+    title_tag = soup.find('title')
+    if title_tag:
+        title_tag.string = "Enhanced Library with Carousel"
 
-def edit_book_info(book):
-    print("\nEditando libro:", book['title'])
-    book['title'] = input(f"Título [{book['title']}]: ").strip() or book['title']
-    book['author'] = input(f"Autor [{book['author']}]: ").strip() or book['author']
-    book['publisher'] = input(f"Editorial [{book['publisher']}]: ").strip() or book['publisher']
-    book['description'] = input(f"Descripción [{book['description']}]: ").strip() or book['description']
-    book['language'] = input(f"Idioma [{book['language']}]: ").strip() or book['language']
+    style_tag = soup.new_tag('style')
+    style_tag.string = """
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 20px;
+        background-color: #f4f4f4;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background-color: #333;
+        color: white;
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    img {
+        width: 100px;
+        height: auto;
+        border-radius: 5px;
+    }
+    #carousel {
+        width: 300px;
+        margin: 20px auto;
+        position: relative;
+    }
+    .carousel-images {
+        width: 100%;
+        height: 400px;
+        overflow: hidden;
+    }
+    .carousel-images img {
+        width: 100%;
+        height: auto;
+        display: none;
+    }
+    .carousel-images img.active {
+        display: block;
+    }
+    #prev, #next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    #prev { left: 0; }
+    #next { right: 0; }
+    """
 
-def update_cover_image(book, cover_folder):
-    cover_path = input(f"Ruta de la nueva portada (dejar en blanco para mantener [{book['cover']}]): ").strip()
-
-    if cover_path and os.path.isfile(cover_path):
-        new_filename = f"{book['author']}_{book['title'].replace(' ', '_')}_cover.jpg"
-        new_cover_path = os.path.join(cover_folder, new_filename)
-
-        try:
-            shutil.copy(cover_path, new_cover_path)
-            print(f"Nueva portada copiada a {new_cover_path}")
-            book['cover'] = os.path.join('./files/', new_filename)
-        except Exception as e:
-            print(f"Error al copiar la portada: {e}")
+    if not soup.style:
+        soup.head.append(style_tag)
     else:
-        print("No se actualizó la portada.")
+        soup.head.style.string = style_tag.string
 
-def regenerate_html(library, output_file):
-    with open(output_file, 'w') as f:
-        f.write('<!DOCTYPE html>\n<html>\n<head>\n<title>Library</title>\n')
-        f.write('<link rel="stylesheet" type="text/css" href="styles.css">\n')
-        f.write('<style>\n')
-        f.write('body { font-family: "Georgia", serif; margin: 20px; }\n')
-        f.write('table { width: 100%; border-collapse: collapse; margin-top: 20px; }\n')
-        f.write('th, td { padding: 10px; text-align: left; border: 1px solid #ddd; }\n')
-        f.write('th { background-color: #f2f2f2; }\n')
-        f.write('tr:nth-child(even) { background-color: #f9f9f9; }\n')
-        f.write('img { width: 100px; height: auto; }\n')
-        f.write('</style>\n')
-        f.write('</head>\n<body>\n')
-        f.write('<h1>Books in My Library</h1>\n')
+    carousel_div = soup.new_tag('div', id='carousel')
 
-        f.write('<table>\n')
-        f.write('<tr>\n')
-        f.write('<th>Cover</th>\n')
-        f.write('<th>Title</th>\n')
-        f.write('<th>Author</th>\n')
-        f.write('<th>Publisher</th>\n')
-        f.write('<th>Description</th>\n')
-        f.write('<th>Language</th>\n')
-        f.write('</tr>\n')
+    carousel_images_div = soup.new_tag('div', **{'class': 'carousel-images'})
+    for img_tag in soup.find_all('img'):
+        carousel_img = soup.new_tag('img', src=img_tag['src'])
+        carousel_images_div.append(carousel_img)
 
-        for book in library:
-            f.write('<tr>\n')
-            cover_img = book['cover']
-            f.write(f'<td><img src="{cover_img}" alt="Cover"></td>\n')
-            f.write(f'<td>{book["title"]}</td>\n')
-            f.write(f'<td>{book["author"]}</td>\n')
-            f.write(f'<td>{book["publisher"]}</td>\n')
-            f.write(f'<td>{book["description"]}</td>\n')
-            f.write(f'<td>{book["language"]}</td>\n')
-            f.write('</tr>\n')
+    carousel_div.append(carousel_images_div)
 
-        f.write('</table>\n')
-        f.write('</body>\n</html>\n')
+    prev_button = soup.new_tag('button', id='prev')
+    prev_button.string = "Anterior"
+    next_button = soup.new_tag('button', id='next')
+    next_button.string = "Siguiente"
+
+    carousel_div.append(prev_button)
+    carousel_div.append(next_button)
+
+    soup.body.insert(0, carousel_div)
+
+    script_tag = soup.new_tag('script')
+    script_tag.string = """
+    var currentIndex = 0;
+    var images = document.querySelectorAll('.carousel-images img');
+    images[currentIndex].classList.add('active');
+
+    document.getElementById('next').addEventListener('click', function() {
+        images[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex + 1) % images.length;
+        images[currentIndex].classList.add('active');
+    });
+
+    document.getElementById('prev').addEventListener('click', function() {
+        images[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        images[currentIndex].classList.add('active');
+    });
+    """
+    soup.body.append(script_tag)
+
+    with open(output_html, 'w') as file:
+        file.write(soup.prettify())
 
 def main():
-    json_file = 'library.json'
-    cover_folder = './files/'
-    output_file = 'library.html'
-
-    library = load_library_from_json(json_file)
-
-    if not library:
-        print(f"No se encontró el archivo JSON ({json_file}) o está vacío.")
-        return
-
-    while True:
-        print("\n--- Libros en la Biblioteca ---")
-        for idx, book in enumerate(library):
-            print(f"{idx + 1}. {book['title']} - {book['author']}")
-
-        choice = input("\nElige un libro para editar (0 para salir): ").strip()
-
-        if choice == '0':
-            break
-
-        if choice.isdigit() and 1 <= int(choice) <= len(library):
-            selected_book = library[int(choice) - 1]
-            edit_book_info(selected_book)
-            update_cover_image(selected_book, cover_folder)
-        else:
-            print("Opción inválida. Intenta nuevamente.")
-
-    save_library_to_json(library, json_file)
-
-    regenerate_html(library, output_file)
-    print(f"HTML actualizado: {output_file}")
+    input_html = 'library.html'
+    output_html = 'Library_set.html'
+    improve_library_html(input_html, output_html)
+    print(f'Library-set html created: {output_html}')
 
 if __name__ == '__main__':
     main()
